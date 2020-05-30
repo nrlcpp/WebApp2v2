@@ -32,6 +32,8 @@ namespace WebApp2v2.Models
         public string Currency { get; set; }
 
         public Type Type { get; set; }
+
+        public List<Comment> Comments { get; set; }
     }
 }
         

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using WebApp2v2.Dto;
 using WebApp2v2.Models;
 
 namespace WebApp2v2.Controllers
@@ -22,15 +23,15 @@ namespace WebApp2v2.Controllers
 
         // GET: api/Expenses
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Expense>>> GetExpenses(
+        public async Task<ActionResult<IEnumerable<ExpenseDtoGet>>> GetExpenses(
             [FromQuery] DateTime? from = null,
             [FromQuery] DateTime? to = null,
             [FromQuery] Models.Type? type = null)
         {
             //Filters results by date
-            IQueryable<Expense> result = _context.Expenses;
+            IQueryable<Expense> result = _context.Expenses.Include(e => e.Comments);
 
-                if (from != null)
+            if (from != null)
             {
                 result = result.Where(e => from <= e.Date);
             }
@@ -44,12 +45,7 @@ namespace WebApp2v2.Controllers
                 result = result.Where(e => e.Type == type);
             }
 
-            //if (from != null && to != null && type != null)
-            //{
-            //    result = result.Where(e => from <= e.Date && e.Date <= to && e.Type == type);
-            //}
-
-            var resultList = await result.ToListAsync();
+            var resultList = await result.Select(e => ExpenseDtoGet.GetDtoFromExpense(e)).ToListAsync();
             return resultList;
 
         }
@@ -58,14 +54,30 @@ namespace WebApp2v2.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Expense>> GetExpense(long id)
         {
-            var expense = await _context.Expenses.FindAsync(id);
+            var expense = await _context.Expenses
+                .Include(e => e.Comments)
+                .Select(e => new ExpenseDtoDetail()
+                {
+                    Id = e.Id,
+                    Description = e.Description,
+                    Sum = e.Sum,
+                    Location = e.Location,
+                    Date = e.Date,
+                    Currency = e.Currency,
+                    Type = e.Type,
+                    Comments = e.Comments.Select(c => new CommentDtoDetail()
+                    {
+                        Important = c.Important,
+                        Text = c.Text,
+                    })
+                }).SingleOrDefaultAsync(e => e.Id == id);
 
             if (expense == null)
             {
                 return NotFound();
             }
 
-            return expense;
+            return Ok(expense);
         }
 
         // PUT: api/Expenses/5
@@ -111,6 +123,31 @@ namespace WebApp2v2.Controllers
 
             return CreatedAtAction("GetExpense", new { id = expense.Id }, expense);
         }
+        [HttpPost("{id}/comment")]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<Expense>> PostComment(long id, CommentDtoAdd comment)
+        {
+
+            var expense = _context.Expenses
+                .Include(e => e.Comments)
+                .FirstOrDefault(e => e.Id == id);
+
+            if (expense == null)
+            {
+                return NotFound();
+            }
+
+            //ExpenseDtoAdd expenseDto = ExpenseDtoAdd.GetDtoFromExpense(expense);
+
+            Comment commentToAdd = CommentDtoAdd.GetCommentFromDto(id, comment);
+
+            _context.Comments.Add(commentToAdd);
+            await _context.SaveChangesAsync();
+
+            return Ok(expense);
+        }
+
 
         // DELETE: api/Expenses/5
         [HttpDelete("{id}")]
