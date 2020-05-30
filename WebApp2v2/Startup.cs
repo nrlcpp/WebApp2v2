@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -13,6 +16,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using WebApp2v2.Models;
+using WebApp2v2.ModelValidators;
 
 namespace WebApp2v2
 {
@@ -29,13 +33,18 @@ namespace WebApp2v2
         public void ConfigureServices(IServiceCollection services)
         {
 
-            services.AddControllers()
+            services
+                .AddControllers()
                 //transforms int of emum in string
                 .AddJsonOptions(options =>
                 {
                     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
                     options.JsonSerializerOptions.IgnoreNullValues = true;
-                });
+                })
+                //use a validator class-register all validators form current assembly
+                .AddFluentValidation(fv => fv.RegisterValidatorsFromAssembly(Assembly.GetExecutingAssembly()));
+            //set part of DI (dependency injection)
+            services.AddTransient<IValidator<Expense>, ExpenseValidator>();
 
             services.AddDbContext<ExpensesDbContext>(options =>
             options.UseSqlServer(Configuration.GetConnectionString("ExpensesDbConnectionString")));
