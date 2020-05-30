@@ -22,9 +22,36 @@ namespace WebApp2v2.Controllers
 
         // GET: api/Expenses
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Expense>>> GetExpenses()
+        public async Task<ActionResult<IEnumerable<Expense>>> GetExpenses(
+            [FromQuery] DateTime? from = null,
+            [FromQuery] DateTime? to = null,
+            [FromQuery] Models.Type? type = null)
         {
-            return await _context.Expenses.ToListAsync();
+            //Filters results by date
+            IQueryable<Expense> result = _context.Expenses;
+
+                if (from != null)
+            {
+                result = result.Where(e => from <= e.Date);
+            }
+            if (to != null)
+            {
+                result = result.Where(e => e.Date <= to);
+            }
+
+            if (type != null)
+            {
+                result = result.Where(e => e.Type == type);
+            }
+
+            //if (from != null && to != null && type != null)
+            //{
+            //    result = result.Where(e => from <= e.Date && e.Date <= to && e.Type == type);
+            //}
+
+            var resultList = await result.ToListAsync();
+            return resultList;
+
         }
 
         // GET: api/Expenses/5
