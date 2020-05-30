@@ -21,6 +21,10 @@ namespace WebApp2v2.Controllers
         }
 
         // GET: api/Comments
+        /// <summary>
+        /// Return a list of comments.
+        /// </summary>
+        /// <returns>A list of comments.</returns>
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Comment>>> GetComments()
         {
@@ -28,6 +32,11 @@ namespace WebApp2v2.Controllers
         }
 
         // GET: api/Comments/5
+        /// <summary>
+        /// Return a specific comment.
+        /// </summary>
+        /// <param name="id">The id of the selected comment.</param>
+        /// <returns>The comment.</returns>
         [HttpGet("{id}")]
         public async Task<ActionResult<Comment>> GetComment(long id)
         {
@@ -42,6 +51,12 @@ namespace WebApp2v2.Controllers
         }
 
         // PUT: api/Comments/5
+        /// <summary>
+        /// Update a specific comment.
+        /// </summary>
+        /// <param name="id">The id of the selected comment.</param>
+        /// <param name="comment">The updated comment.</param>
+        /// <returns>No comment.</returns>
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPut("{id}")]
@@ -74,6 +89,22 @@ namespace WebApp2v2.Controllers
         }
 
         // POST: api/Comments
+        /// <summary>
+        /// Add a new comment.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        /// {
+        ///     "id": 0,
+        ///     "text": "string",
+        ///     "important": true,
+        ///     "expenseId": 0
+        /// }
+        /// </remarks>
+        /// <param name="comment">The comment to be added.</param>
+        /// <returns>A comment.</returns>
+        /// <response code="201">Returns the newly created Comment</response>
+        /// <response code="400">If the Comment is null</response> 
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPost]
@@ -86,6 +117,11 @@ namespace WebApp2v2.Controllers
         }
 
         // DELETE: api/Comments/5
+        /// <summary>
+        /// Delete an comment.
+        /// </summary>
+        /// <param name="id">The id of the comment wich will be deleted.</param>
+        /// <returns>Deleted comment.</returns>
         [HttpDelete("{id}")]
         public async Task<ActionResult<Comment>> DeleteComment(long id)
         {

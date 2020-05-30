@@ -22,6 +22,13 @@ namespace WebApp2v2.Controllers
         }
 
         // GET: api/Expenses
+        /// <summary>
+        /// Gets a list of all the expenses.
+        /// </summary>
+        /// <param name="from">Filter expenses added after this date time (inclusive). Leave blank for no filter.</param>
+        /// <param name="to">Filter expenses added before this date time (inclusive). Leave blank for no filter.</param>
+        /// <param name="type">Filter expenses by type. Leave empty for all.</param>
+        /// <returns>A list of Expenses.</returns>
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ExpenseDtoGet>>> GetExpenses(
             [FromQuery] DateTime? from = null,
@@ -51,6 +58,11 @@ namespace WebApp2v2.Controllers
         }
 
         // GET: api/Expenses/5
+        /// <summary>
+        /// Return an Expense.
+        /// </summary>
+        /// <param name="id">The id of the selected expense.</param>
+        /// <returns>An expense</returns>
         [HttpGet("{id}")]
         public async Task<ActionResult<Expense>> GetExpense(long id)
         {
@@ -81,6 +93,12 @@ namespace WebApp2v2.Controllers
         }
 
         // PUT: api/Expenses/5
+        /// <summary>
+        /// Update a specific Expense.
+        /// </summary>
+        /// <param name="id">The id of the selected expense.</param>
+        /// <param name="expense">The updated expense</param>
+        /// <returns>No content.</returns>
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPut("{id}")]
@@ -113,6 +131,34 @@ namespace WebApp2v2.Controllers
         }
 
         // POST: api/Expenses
+        /// <summary>
+        /// Add a new expense.
+        /// </summary>
+        /// /// <remarks>
+        /// Sample request:
+        /// {
+        ///     "id": 0,
+        ///     "description": "string",
+        ///     "sum": 0,
+        ///     "location": "string",
+        ///     "date": "2020-05-31T21:38:16.201Z",
+        ///     "currency": "lei",
+        ///     "type": "food",
+        ///     "comments": 
+        ///     [
+        ///         {
+        ///         "id": 0,
+        ///         "text": "string",
+        ///         "important": true,
+        ///         "expenseId": 0
+        ///         }
+        ///     ]
+        /// }
+        /// </remarks>
+        /// <param name="expense">The expense to be added.</param>
+        /// <returns>Added expense.</returns>
+        /// <response code="201">Returns the newly created Expense</response>
+        /// <response code="400">If the Expense is null</response>  
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPost]
@@ -123,6 +169,21 @@ namespace WebApp2v2.Controllers
 
             return CreatedAtAction("GetExpense", new { id = expense.Id }, expense);
         }
+        /// <summary>
+        /// Add a comment for an Expense.
+        /// </summary>
+        /// /// <remarks>
+        /// Sample request:
+        /// {
+        ///     "text": "string",
+        ///     "important": true,
+        /// }
+        /// </remarks>
+        /// <param name="id">The id of the selected expense.</param>
+        /// <param name="comment">The comment to be added.</param>
+        /// <returns>The comment added.</returns>
+        /// <response code="201">Returns the newly created Comment</response>
+        /// <response code="400">If the Expense or Comment is null</response> 
         [HttpPost("{id}/comment")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -150,6 +211,11 @@ namespace WebApp2v2.Controllers
 
 
         // DELETE: api/Expenses/5
+        /// <summary>
+        /// Delete an Expense.
+        /// </summary>
+        /// <param name="id">The id of the expense wich will be deleted.</param>
+        /// <returns>Deleted expense.</returns>
         [HttpDelete("{id}")]
         public async Task<ActionResult<Expense>> DeleteExpense(long id)
         {
